@@ -1,0 +1,6 @@
+ryerson/ca/business/BuyBusiness.class
+ryerson/ca/endpoint/BuyResource.class
+ryerson/ca/helper/Ski.class
+ryerson/ca/persistence/BUY_CRUD.class
+ryerson/ca/business/Messaging.class
+ryerson/ca/endpoint/ApplicationConfig.class

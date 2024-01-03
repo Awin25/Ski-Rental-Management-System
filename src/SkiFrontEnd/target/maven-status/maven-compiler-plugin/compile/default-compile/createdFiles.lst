@@ -1,0 +1,10 @@
+ryerson/ca/persistence/Account_CRUD.class
+ryerson/ca/frontend/Credit.class
+ryerson/ca/helper/SkiXML.class
+ryerson/ca/business/XMLParser.class
+ryerson/ca/business/Business.class
+ryerson/ca/business/ApplicationConfig.class
+ryerson/ca/frontend/FrontEnd.class
+ryerson/ca/helper/Ski.class
+ryerson/ca/frontend/Authenticate.class
+ryerson/ca/frontend/Buy.class

@@ -1,0 +1,257 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: skidb-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: skidb
+spec:
+  selector:
+    app: skidb
+  ports:
+    - port: 3306
+      targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skidb
+spec:
+  selector:
+    matchLabels:
+      app: skidb
+  template:
+    metadata:
+      labels:
+        app: skidb
+    spec:
+      containers:
+        - name: skidb
+          image: akirupak/coe692:skidb
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: storage
+              mountPath: /data/skidb
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: skidb-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ski
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ski
+  template:
+    metadata:
+      labels:
+        app: ski
+    spec:
+      containers:
+        - name: ski
+          image: akirupak/coe692:skiservice
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_URL
+              value: skidb:3306
+            - name: kubeMQAddress
+              value: 10.24.14.133:50000
+          imagePullPolicy: Always
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: buyskidb-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: buyskidb
+spec:
+  selector:
+    app: buyskidb
+  ports:
+    - port: 3306
+      targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: buyskidb
+spec:
+  selector:
+    matchLabels:
+      app: buyskidb
+  template:
+    metadata:
+      labels:
+        app: buyskidb
+    spec:
+      containers:
+        - name: buyskidb
+          image: akirupak/coe692:buyskidb
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: storage
+              mountPath: /data/buyskidb
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: buyskidb-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: buyski
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: buyski
+  template:
+    metadata:
+      labels:
+        app: buyski
+    spec:
+      containers:
+        - name: buyski
+          image: akirupak/coe692:buyskiservice
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_URL
+              value: buyskidb:3306
+            - name: kubeMQAddress
+              value: 10.24.14.133:50000
+          imagePullPolicy: Always
+---
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: skifrontenddb-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: skifrontenddb
+spec:
+  selector:
+    app: skifrontenddb
+  ports:
+    - port: 3306
+      targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skifrontenddb
+spec:
+  selector:
+    matchLabels:
+      app: skifrontenddb
+  template:
+    metadata:
+      labels:
+        app: skifrontenddb
+    spec:
+      containers:
+        - name: skifrontenddb
+          image: akirupak/coe692:skifrontenddb
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: storage
+              mountPath: /data/skifrontenddb
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: skifrontenddb-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skifrontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: skifrontend
+  template:
+    metadata:
+      labels:
+        app: skifrontend
+    spec:
+      containers:
+        - name: skifrontend
+          image: akirupak/coe692:skifrontendservice
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_URL
+              value: skifrontenddb:3306
+            - name: kubeMQAddress
+              value: 10.24.14.133:50000
+          imagePullPolicy: Always
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ski
+spec:
+  selector:
+    app: ski
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: buyski
+spec:
+  selector:
+    app: buyski
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: skifrontend
+spec:
+  selector:
+    app: skifrontend
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: LoadBalancer
